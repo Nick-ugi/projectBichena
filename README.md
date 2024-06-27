@@ -12,3 +12,8 @@
 * 개발 인원 : 7명
 * 사용 언어 및 개발 환경
 <br>
+
+![사용언어 및 개발환경](https://github.com/Nick-ugi/projectBichena/assets/168390629/1e32eb42-fb04-4314-879b-a719e4aab55a)
+
+<br><br><br>
+## :last_quarter_moon_with_face: 주요기능
