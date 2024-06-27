@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ProdRevDAO">
+	<resultMap type="prodRevDTO" id="prodRevList">
+		<id property="pr_no" column="PR_NO" />
+		<result property="u_no" column="U_NO" />
+		<result property="u_nick" column="U_NICK" />
+		<result property="p_no" column="P_NO" />
+		<result property="p_name" column="P_NAME" />
+		<result property="pr_content" column="PR_CONTENT" />
+		<result property="pr_star" column="PR_STAR" />
+		<result property="pr_date" column="PR_DATE" />
+		<result property="pr_img" column="PR_IMG" />
+		<result property="o_no" column="O_NO" />
+	</resultMap>
+	
+	<select id="prodOneRev" resultType="prodRevDTO">
+		SELECT * FROM BC_PRODREV WHERE P_NO = #{p_no}
+	</select>
+	
+	<select id="myRevList" resultType="prodRevDTO">
+		SELECT * FROM BC_PRODREV WHERE U_NO = #{u_no} ORDER BY PR_NO DESC
+	</select>
+	
+	<!-- 페이징 -->
+	<select id="revTotalCnt" resultType="int">
+		SELECT COUNT(*) FROM BC_PRODREV WHERE 1=1
+	</select>
+	
+	<select id="adminRevList" resultType="prodRevDTO">
+		SELECT pr.*, ROW_NUMBER() OVER(ORDER BY pr_no DESC) AS rnum FROM BC_PRODREV pr WHERE 1=1
+		<if test="searchCondition != null">
+			<if test="searchCondition == 'pname' "> AND P_NAME LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'pno' "> AND P_NO LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'unick' "> AND U_NICK LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+		</if>
+		ORDER BY pr_no DESC
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+
+	<insert id="prodRevInsert">
+		INSERT INTO BC_PRODREV (U_NO, U_NICK, P_NO, P_NAME, PR_CONTENT, PR_STAR, PR_IMG, O_NO)
+		SELECT u.U_NO, u.U_NICK, p.P_NO, p.P_NAME, #{pr_content}, #{pr_star}, #{pr_img}, #{o_no}
+		FROM bc_users AS u
+		JOIN bc_prod AS p ON p.P_NO = #{p_no}
+		WHERE u.U_NO = #{u_no}
+	</insert>
+
+
+	<!-- 05/15 -->
+	<delete id="prodRevDelete">
+		DELETE FROM BC_PRODREV WHERE PR_NO = #{pr_no};
+	</delete>
+	<!--  05/17 메인화면 리뷰 슬라이드 -->
+	<select id="mainRevList" resultType="prodRevDTO">
+		SELECT * FROM BC_PRODREV ORDER BY PR_NO
+	</select>
+</mapper>

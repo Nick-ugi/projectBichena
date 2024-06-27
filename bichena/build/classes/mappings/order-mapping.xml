@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderDAO">
+
+	<!-- 페이징 -->
+	<select id="orderTotalCnt" resultType="int">
+		SELECT COUNT(*) FROM BC_ORDER WHERE 1=1
+	</select>
+	
+	<select id="adminOrderList" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG, row_number() OVER() AS rnum
+		FROM BC_ORDER AS o JOIN BC_PROD AS p ON o.P_NO = p.P_NO
+		<if test="o_no != null and o_no != ''">
+			AND o.O_NO LIKE CONCAT('%', #{o_no}, '%')
+		</if>
+		<if test="u_name != null and u_name != ''">
+			AND o.U_NAME LIKE CONCAT('%', #{u_name}, '%')
+		</if>
+		<if test="o_date != null and o_date != ''">
+			AND o.O_DATE = #{o_date}
+		</if>
+		<if test="o_state != null and o_state != ''">
+			AND o.O_STATE = #{o_state}
+		</if>
+		ORDER BY rnum DESC
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+
+	<select id="myOrderList" resultType="orderdto">
+      SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+      FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO where U_NO = #{u_no} AND O_STATE != '취소' GROUP BY O_NO ORDER BY O_DATE DESC
+   	</select>
+
+	<select id="adminOrderRepeat" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG, row_number() over() as rnum
+		FROM BC_ORDER AS o JOIN BC_PROD as p on o.P_NO = p.P_NO
+		<if test="o_no != null and o_no != ''">
+			AND o.O_NO LIKE CONCAT('%', #{o_no}, '%')
+		</if>
+		<if test="u_name != null and u_name != ''">
+			AND o.U_NAME LIKE CONCAT('%', #{u_name}, '%')
+		</if>
+		<if test="o_date != null and o_date != ''">
+			AND o.O_DATE = #{o_date}
+		</if>
+		<if test="o_state != null and o_state != ''">
+			AND o.O_STATE = #{o_state}
+		</if>
+		GROUP BY O_NO
+		ORDER BY rnum DESC
+		LIMIT #{sizePerPage} OFFSET
+		#{startList}
+	</select>
+	
+	<select id="adminOrderRepeatCount" resultType="int">
+		SELECT COUNT(*) AS group_count
+		FROM (
+		SELECT o.*, p.P_DESC, p.P_PRICE,
+		p.P_IMG, ROW_NUMBER() OVER() AS rnum
+		FROM BC_ORDER AS o
+		JOIN BC_PROD AS
+		p ON o.P_NO = p.P_NO
+		<if test="o_no != null and o_no != ''">
+			AND o.O_NO LIKE CONCAT('%', #{o_no}, '%')
+		</if>
+		<if test="u_name != null and u_name != ''">
+			AND o.U_NAME LIKE CONCAT('%', #{u_name}, '%')
+		</if>
+		<if test="o_date != null and o_date != ''">
+			AND o.O_DATE = #{o_date}
+		</if>
+		<if test="o_state != null and o_state != ''">
+			AND o.O_STATE = #{o_state}
+		</if>
+		GROUP BY O_NO
+		ORDER BY rnum DESC
+		) AS subquery
+	</select>	
+	
+	<select id="adminOrderDetail" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+		FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO WHERE O_NO = #{o_no} AND O.P_NO = #{p_no}
+	</select>
+	
+	<select id="myOrderConfirm" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+		FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO where U_NO = #{u_no} AND O_STATE != '취소' ORDER BY O_DATE DESC
+	</select>
+	
+	<select id="myOrderDetail" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+		FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO where O_NO = #{o_no}
+	</select>
+	
+	<select id="myCancleList" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+		FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO where U_NO = #{u_no} AND O_STATE = '취소' GROUP BY O_NO ORDER BY O_DATE DESC
+	</select>
+	
+	<select id="myCancleConfirm" resultType="orderdto">
+		SELECT o.*, p.P_DESC, p.P_PRICE, p.P_IMG
+		FROM BC_ORDER AS o JOIN BC_PROD AS p on o.P_NO = p.P_NO where U_NO = #{u_no} AND O_STATE = '취소' ORDER BY O_DATE DESC
+	</select>
+	
+	<select id="myRevIstOrder" resultType="orderdto">
+		SELECT * FROM BC_ORDER WHERE U_NO = #{u_no} AND O_REVSTATE = 0 AND O_STATE = '배송완료'
+	</select>
+
+	<update id="orderRevchk">
+		UPDATE BC_ORDER SET O_REVSTATE = 1 WHERE O_NO = #{o_no} and P_NO = #{p_no}
+	</update>
+<!-- 05/15 -->
+	<update id="orderRevDelchk">
+		UPDATE BC_ORDER SET O_REVSTATE = 0 WHERE O_NO = #{o_no} and P_NO = #{p_no}
+	</update>
+
+	<insert id="insertOrder">
+		INSERT INTO BC_ORDER (O_NO, U_NO, U_NAME, P_NO, P_NAME, O_STOCK, O_TOTAL, O_ADDR, U_TEL) 
+		VALUES(#{o_no}, #{u_no}, #{u_name}, #{p_no}, #{p_name}, #{o_stock}, #{o_total}, #{o_addr}, #{u_tel})
+	</insert>
+	
+	<update id="deleteOrder">
+		UPDATE BC_ORDER SET O_STATE = '취소' WHERE O_NO = #{o_no}
+	</update>
+	
+	<select id="delOrderSelect" resultType="orderdto">
+		SELECT * FROM BC_ORDER WHERE O_STATE = '취소' AND O_NO = #{o_no}
+	</select>
+	
+	<update id="updateOrderState">
+		UPDATE BC_ORDER SET O_STATE = #{o_state} WHERE O_NO = #{o_no}
+	</update>
+	
+	<select id="chartResult" resultType="orderdto">
+		SELECT p.p_name AS p_name, 
+		SUM(o.o_stock) AS salesCount, 
+		SUM(CASE WHEN o.o_state = '취소' THEN o.o_stock ELSE 0 END) AS cancelCount
+		FROM bc_order o
+		JOIN bc_prod p ON o.p_no = p.p_no
+		GROUP BY p.p_name
+		ORDER BY SUM(o.o_stock) DESC
+		LIMIT 5;
+	</select>
+</mapper>

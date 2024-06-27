@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QnaDAO">
+
+	<resultMap type="qnaDTO" id="qnalist">
+		<id property="q_no" column="Q_NO" />
+		<result property="q_cate" column="Q_CATE" />
+		<result property="q_title" column="Q_TITLE" />
+		<result property="q_content" column="Q_CONTENT" />
+		<result property="q_writer" column="Q_WRITER" />
+		<result property="q_date" column="Q_DATE" />
+		<result property="q_state" column="Q_STATE" />
+		<result property="a_content" column="A_CONTENT" />
+	</resultMap>
+	
+	<!-- 페이징 -->
+	<select id="qnaTotalCnt" resultType="int">
+		SELECT COUNT(*) FROM BC_QNA WHERE 1=1
+		<if test="searchCondition != null">
+			<if test="searchCondition == 'q_cate' "> AND Q_CATE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_state' "> AND Q_STATE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_title' "> AND Q_TITLE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_writer' "> AND Q_WRITER LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+		</if>
+	</select>
+	
+	<select id="qnaList" resultMap="qnalist">
+		SELECT q.*, ROW_NUMBER() OVER(ORDER BY q_no DESC) AS rnum FROM BC_QNA q WHERE 1=1 
+		<if test="searchCondition != null">
+			<if test="searchCondition == 'q_cate' "> AND Q_CATE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_state' "> AND Q_STATE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_title' "> AND Q_TITLE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+			<if test="searchCondition == 'q_writer' "> AND Q_WRITER LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+		</if>
+		ORDER BY q_no desc
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+	
+	<select id="qnaMyTotalCnt" resultType="int">
+		SELECT COUNT(*) FROM BC_QNA WHERE Q_WRITER = #{q_writer};
+	</select>
+	
+	<select id="qnaListMy" resultMap="qnalist">
+		SELECT * FROM BC_QNA WHERE Q_WRITER = #{q_writer}
+		ORDER BY Q_NO desc
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+
+	<select id="qnaView" resultType="qnaDTO">
+		SELECT * FROM BC_QNA WHERE Q_NO = #{q_no}
+	</select>
+	
+	<insert id="qnaInsert">
+		INSERT INTO BC_QNA (Q_CATE, Q_TITLE, Q_CONTENT, Q_WRITER) VALUES (#{q_cate}, #{q_title}, #{q_content}, #{q_writer})
+	</insert>
+
+	<delete id="qnaDelete">
+		DELETE FROM BC_QNA WHERE Q_NO = #{q_no}
+	</delete>
+
+	<update id="qnaAcontent">
+		UPDATE BC_QNA SET A_CONTENT = #{a_content} WHERE Q_NO = #{q_no}
+	</update>
+	
+	<update id="qnaState">
+		UPDATE BC_QNA SET Q_STATE = #{q_state} WHERE Q_NO = #{q_no}
+	</update>
+</mapper>

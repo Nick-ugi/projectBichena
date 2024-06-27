@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.drink.ko.vo.ProdVO" alias="prodDTO" />
+		<typeAlias type="com.drink.ko.vo.ProdRevVO" alias="prodRevDTO" />
+		<typeAlias type="com.drink.ko.vo.QnaVO" alias="qnaDTO" />
+		<typeAlias type="com.drink.ko.vo.UsersVO" alias="userdto" />
+		<typeAlias type="com.drink.ko.vo.OrderVO" alias="orderdto" />
+		<typeAlias type="com.drink.ko.vo.CartVO" alias="cartdto" />
+		<typeAlias type="com.drink.ko.vo.NoticeVO" alias="noticedto"/>
+		<typeAlias type="com.drink.ko.vo.FaqVO" alias="faqdto"/>
+	</typeAliases>
+	<mappers>
+		<mapper resource="mappings/prod-mapping.xml" />
+		<mapper resource="mappings/prodrev-mapping.xml"/>
+		<mapper resource="mappings/qna-mapping.xml"/>
+		<mapper resource="mappings/login-mapping.xml" />
+		<mapper resource="mappings/order-mapping.xml" />
+		<mapper resource="mappings/user-mapping.xml" />
+		<mapper resource="mappings/CartMapper.xml" />
+		<mapper resource="mappings/notice-mapping.xml" />  <!-- 마이바티스 설정파일을 여기에 추가했다는 -->
+		<mapper resource="mappings/faq-mapping.xml" />  <!-- 마이바티스 설정파일을 여기에 추가했다는 -->
+	</mappers>
+</configuration>

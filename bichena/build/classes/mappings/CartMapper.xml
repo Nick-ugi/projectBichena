@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CartDAO">
+
+    <resultMap id="cartMap" type="cartdto">
+        <result column="P_NO" property="p_no"/>
+        <result column="P_NAME" property="p_name"/>
+        <result column="C_STOCK" property="c_stock"/>
+        <result column="U_ID" property="u_id"/>
+        <result column="C_TOTAL" property="c_total"/>
+        <result column="P_IMG" property="p_img"/>
+    </resultMap>
+
+    <select id="selectAllCarts" resultMap="cartMap">
+       SELECT c.*, p.P_IMG FROM BC_CART c JOIN BC_PROD p ON c.P_NO = p.P_NO  WHERE c.U_ID = #{u_id}
+    </select>
+
+    <select id="cartSelectCount" resultType="Integer">
+		SELECT COUNT(*) FROM BC_CART WHERE U_ID = #{u_id}
+    </select>
+
+    <select id="selectCount" resultMap="cartMap">
+     SELECT U_ID, C_STOCK, C_TOTAL FROM BC_CART WHERE P_NO = #{p_no} AND U_ID = #{u_id}
+    </select>
+    
+    <insert id="insertCart">
+        INSERT INTO BC_CART (P_NO, P_NAME, C_STOCK, U_ID, C_TOTAL)
+        VALUES (#{p_no}, #{p_name}, #{c_stock}, #{u_id}, #{c_total})
+    </insert>
+
+    <update id="updateCart">
+        UPDATE BC_CART SET C_STOCK = #{c_stock}, C_TOTAL = #{c_total} WHERE P_NO = #{p_no} AND U_ID = #{u_id} 
+    </update>
+
+    <delete id="deleteCart">
+        DELETE FROM BC_CART WHERE P_NO = #{p_no} AND U_ID = #{u_id}
+    </delete>
+    
+    <select id="selectOrder" resultMap="cartMap">
+	     SELECT * FROM BC_CART WHERE P_NO = #{p_no} AND U_ID = #{u_id}
+	</select>
+	
+	<!-- 주문번호 생성 -->
+	<select id="orderNoCreate" resultType="string">
+		SELECT CONCAT(DATE_FORMAT(NOW(), '%Y%m%d'), LPAD(NEXTVAL(O_NO_SEQ), 3, '0'))
+	</select>
+
+</mapper>

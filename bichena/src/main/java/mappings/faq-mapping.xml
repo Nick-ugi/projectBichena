@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="FaqDAO">
+	<select id="getFaq" resultType="faqdto">
+		SELECT * FROM BC_FAQ WHERE
+		faq_NO = #{faq_no}
+	</select>
+
+	<insert id="insertFaq">
+		INSERT INTO BC_FAQ(
+		FAQ_NO,
+		FAQ_TITLE,
+		FAQ_CONTENT)
+		VALUES(
+		#{faq_no},
+		#{faq_title},
+		#{faq_content})
+	</insert>
+
+	<update id="updateFaq">
+		UPDATE BC_FAQ SET
+		FAQ_TITLE =#{faq_title},
+		FAQ_CONTENT =#{faq_content}
+		WHERE FAQ_NO =#{faq_no}
+	</update>
+
+	<delete id="deleteFaq">
+		DELETE FROM BC_FAQ WHERE FAQ_NO =#{faq_no}
+	</delete>
+
+	<update id="updateFaq_no1">
+		SET @row_number := 0;
+	</update>
+	
+	<update id="updateFaq_no2">
+		UPDATE BC_FAQ
+		SET FAQ_NO =
+		(@row_number:=@row_number+1)
+		ORDER BY FAQ_NO;
+	</update>
+
+	<select id="getFaqListPaging" resultType="faqdto">
+		SELECT *
+		FROM BC_FAQ
+		WHERE 1=1
+		<if test="searchCondition == 'CONTENT' "> AND FAQ_CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		<if test="searchCondition  == 'TITLE' "> AND FAQ_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		ORDER BY FAQ_NO DESC
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) FROM BC_FAQ
+		WHERE 1=1
+		<if test="searchCondition == 'CONTENT' "> AND FAQ_CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		<if test="searchCondition == 'TITLE' "> AND FAQ_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		ORDER BY FAQ_NO
+	</select>
+
+</mapper>

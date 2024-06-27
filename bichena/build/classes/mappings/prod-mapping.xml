@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ProdDAO">
+	<resultMap type="prodDTO" id="prodList">
+		<id property="p_no" column="P_NO" />
+		<result property="p_name" column="P_NAME" />
+		<result property="p_desc" column="P_DESC" />
+		<result property="p_price" column="P_PRICE" />
+		<result property="p_made" column="P_MADE" />
+		<result property="p_type" column="P_TYPE" />
+		<result property="p_dgr" column="P_DGR" />
+		<result property="p_sw" column="P_SW" />
+		<result property="p_su" column="P_SU" />
+		<result property="p_sp" column="P_SP" />
+		<result property="p_mat" column="P_MAT" />
+		<result property="p_cap" column="P_CAP" />
+		<result property="p_stock" column="P_STOCK" />
+		<result property="p_maxstock" column="P_MAXSTOCK" />
+		<result property="p_img" column="P_IMG" />
+	</resultMap>
+	
+	<!-- 페이징 -->
+	<select id="prodTotalCnt" resultType="int">
+      SELECT COUNT(*) FROM (
+      SELECT p.*, ROW_NUMBER() OVER() AS rnum FROM BC_PROD p WHERE 1=1
+      <if test="searchKeyword != null and searchKeyword != ''">
+         AND (
+         P_NAME LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_DESC LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_MADE LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_TYPE LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_MAT LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         EDITHTML LIKE CONCAT('%', #{searchKeyword}, '%')
+         )
+      </if>
+      <if test="searchCondition != null and searchCondition != ''">
+         <if test="searchCondition == 'pname' "> AND P_NAME LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'pmade' "> AND P_MADE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'pno' "> AND P_NO LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'ptype' "> AND P_TYPE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+      </if>
+      <if test="type != null"> AND P_TYPE = #{type}</if>
+      <if test="sweet != null"> AND P_SW = #{sweet}</if>
+      <if test="acidity != null"> AND P_SU = #{acidity}</if>
+      <if test="carbonic != null"> AND P_SP = #{carbonic}</if>
+      <if test="ingredient != null"> AND P_MAT = #{ingredient}</if>
+      ) AS subquery
+   </select>
+
+	
+   <!-- 필터링 된 페이지들 가져오기(실페 jsp에서 보이는 내용들) -->
+   <select id="prodList" resultMap="prodList">
+      SELECT * FROM (
+      SELECT p.*, ROW_NUMBER() OVER() AS rnum FROM BC_PROD p WHERE 1=1
+      <if test="searchKeyword != null and searchKeyword != ''">
+         AND (
+         P_NAME LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_DESC LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_MADE LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_TYPE LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         P_MAT LIKE CONCAT('%', #{searchKeyword}, '%') OR
+         EDITHTML LIKE CONCAT('%', #{searchKeyword}, '%')
+         )
+      </if>
+      <if test="searchCondition != null and searchCondition != ''">
+         <if test="searchCondition == 'pname' "> AND P_NAME LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'pmade' "> AND P_MADE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'pno' "> AND P_NO LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+         <if test="searchCondition == 'ptype' "> AND P_TYPE LIKE CONCAT('%', #{searchKeyword}, '%') </if>
+      </if>
+      <if test="type != null"> AND P_TYPE = #{type}</if>
+      <if test="sweet != null"> AND P_SW = #{sweet}</if>
+      <if test="acidity != null"> AND P_SU = #{acidity}</if>
+      <if test="carbonic != null"> AND P_SP = #{carbonic}</if>
+      <if test="ingredient != null"> AND P_MAT = #{ingredient}</if>
+      ) AS subquery
+      OFFSET #{startList} ROWS FETCH NEXT #{sizePerPage} ROWS ONLY
+   </select>
+	
+	<select id="prodOne" resultType="prodDTO">
+		SELECT * FROM BC_PROD WHERE P_NO = #{p_no}
+	</select>
+	
+	
+	<select id="getPnoMaxNum" resultType="_int">
+		SELECT IFNULL(MAX(P_NO), 0) + 1 AS MAX FROM BC_PROD
+	</select>
+	
+	<insert id="insertProduct">
+		INSERT INTO BC_PROD
+		(P_NO, P_NAME, P_PRICE, EDITFILE, P_IMG, EDITHTML, P_DESC, P_MADE, P_TYPE, P_DGR, P_SW, P_SU, P_SP, P_MAT, P_CAP, P_STOCK, P_MAXSTOCK)
+		VALUES 
+		(#{p_no}, #{p_name}, #{p_price}, #{editfile}, #{p_img}, #{edithtml}, #{p_desc}, #{p_made}, #{p_type}, #{p_dgr}, #{p_sw}, #{p_su}, #{p_sp}, #{p_mat}, #{p_cap}, #{p_maxstock}, #{p_maxstock})
+	</insert>
+	
+	<delete id="deleteProduct">
+		DELETE FROM BC_PROD WHERE P_NO = #{p_no}
+	</delete>
+	
+	<update id="updateProduct">
+		UPDATE BC_PROD SET
+		P_NAME = #{p_name}, P_PRICE = #{p_price}, EDITFILE = #{editfile}, P_IMG = #{p_img}, EDITHTML = #{edithtml}, 
+		P_DESC = #{p_desc}, P_MADE = #{p_made}, P_TYPE = #{p_type}, P_DGR = #{p_dgr}, P_SW = #{p_sw}, 
+		P_SU = #{p_su}, P_SP = #{p_sp}, P_MAT = #{p_mat}, P_CAP = #{p_cap}, P_STOCK = #{p_stock} 
+		WHERE P_NO = #{p_no}
+	</update>
+
+	<select id="prodStock" resultMap="prodList">
+		SELECT P_STOCK FROM BC_PROD WHERE P_NO = #{p_no}
+	</select>
+	
+	
+   <select id="mainPageSlideListTakju" resultMap="prodList">
+		SELECT * FROM BC_PROD
+		WHERE 1=1 and  P_TYPE='탁주'
+		ORDER BY P_NO DESC
+   </select>
+   
+	<select id="mainPageSlideListGwasilju" resultMap="prodList">
+		SELECT * FROM BC_PROD
+		WHERE 1=1 and  P_TYPE='과실주'
+		ORDER BY P_NO DESC
+	</select>
+   
+	<select id="mainPageSlideListChunju" resultMap="prodList">
+		SELECT * FROM BC_PROD
+		WHERE 1=1 and  P_TYPE='약·청주'
+		ORDER BY P_NO DESC
+	</select>
+   
+	<select id="mainPageSlideListJeungryuju" resultMap="prodList">
+		SELECT * FROM BC_PROD
+		WHERE 1=1 and P_TYPE='증류주'
+		ORDER BY P_NO DESC
+	</select>
+	
+	<update id="stockUpdate">
+		UPDATE BC_PROD SET P_STOCK = #{p_stock} WHERE P_NO = #{p_no}
+	</update>
+</mapper>

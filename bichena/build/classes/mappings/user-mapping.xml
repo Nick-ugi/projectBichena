@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserDAO">
+
+	<resultMap type="userdto" id="users">
+		<id property="u_id" column="U_ID" />
+		<result property="u_pw" column="U_PW" />
+		<result property="u_name" column="U_NAME" />
+		<result property="u_nick" column="U_NICK" />
+		<result property="u_gen" column="U_GEN" />
+		<result property="u_birth" column="U_BIRTH" />
+		<result property="u_tel" column="U_TEL" />
+		<result property="u_email" column="U_EMAIL" />
+		<result property="addr1" column="ADDR1" />
+		<result property="addr2" column="ADDR2" />
+		<result property="addr3" column="ADDR3" />
+		<result property="u_lev" column="U_LEV" />
+		<result property="u_state" column="U_STATE" />
+	</resultMap>
+
+	<select id="checkId" resultType="userdto">
+		SELECT * FROM bc_users WHERE
+		U_ID = #{u_id}
+	</select>
+
+	<select id="checkEmail" resultType="userdto">
+		SELECT * FROM bc_users WHERE
+		U_EMAIL = #{u_email}
+	</select>
+	
+	<select id="checkTel" resultType="userdto">
+		SELECT * FROM bc_users WHERE U_TEL = #{u_tel}
+	</select>
+	
+	<select id="checkTelId" resultType="userdto">
+		SELECT * FROM bc_users WHERE U_TEL = #{u_tel} AND U_ID = #{u_id}
+	</select>
+
+	<insert id="insertUser">
+		INSERT INTO
+		bc_users(U_ID,U_PW,U_NAME,U_NICK,U_GEN,U_BIRTH,U_TEL,U_EMAIL,ADDR1,ADDR2,ADDR3)
+		VALUES(#{u_id},#{u_pw},#{u_name},#{u_nick},#{u_gen},#{u_birth},#{u_tel},#{u_email},#{addr1},#{addr2},#{addr3})
+	</insert>
+
+	<!-- 마이 페이지 -> 내 정보 관리 넘어갈 때 비번 재확인 -->
+	<select id="checkPw" resultType="userdto">
+		SELECT * FROM BC_USERS WHERE
+		U_PW = #{u_pw}
+	</select>
+
+	<!-- 회원 상세정보 -->
+	<select id="selectOne" parameterType="string" resultMap="users">
+		SELECT *
+		FROM BC_USERS WHERE U_ID = #{selId}
+	</select>
+
+	<!--회원 정보 수정 -->
+	<update id="updateUser">
+		UPDATE BC_USERS SET
+		U_NICK = #{u_nick},
+		U_GEN = #{u_gen},
+		U_EMAIL = #{u_email},
+		U_TEL = #{u_tel},
+		ADDR1 =#{addr1}, ADDR2 =#{addr2}, ADDR3 =#{addr3}
+		WHERE U_ID =#{u_id}
+	</update>
+
+	<!-- 비번 변경 -->
+	<update id="updatePw">
+		UPDATE BC_USERS SET U_PW =#{u_pw} WHERE U_ID =#{u_id}
+	</update>
+
+	<!-- 닉네임 중복 -->
+	<select id="checkNick" resultType="userdto">
+		SELECT * FROM BC_USERS WHERE
+		u_nick = #{u_nick}
+	</select>
+
+	<!--회원 계정 삭제 -->
+	<update id="deleteUser">
+		UPDATE BC_USERS SET U_STATE = '0' WHERE U_ID =
+		#{u_id};
+	</update>
+
+	<!-- 관리자 회원 목록 -->
+	<select id="getUserList" resultType="userdto">
+		SELECT * FROM BC_USERS WHERE U_ID != 'admin'
+		<if test="searchWord != null and searchWord != ''">
+			<if test="searchVoca == 'u_no' "> AND U_NO LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_id' "> AND U_ID LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_name' "> AND U_NAME LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_tel' "> AND U_TEL LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_email' "> AND U_EMAIL LIKE CONCAT('%', #{searchWord}, '%') </if>
+		</if>
+		<if test="orderBy != null">
+			<if test="orderBy == 1 "> ORDER BY U_STATE DESC </if>
+			<if test="orderBy == 0 "> ORDER BY U_STATE ASC </if>
+		</if>
+		<if test="orderBy == null"> ORDER BY U_NO ASC </if>
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+	<!-- 관리자 회원 목록 카운트 -->
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) FROM BC_USERS WHERE U_ID != 'admin'
+		<if test="searchWord != null and searchWord != ''">
+			<if test="searchVoca == 'u_no' "> AND U_NO LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_id' "> AND U_ID LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_name' "> AND U_NAME LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_tel' "> AND U_TEL LIKE CONCAT('%', #{searchWord}, '%') </if>
+			<if test="searchVoca == 'u_email' "> AND U_EMAIL LIKE CONCAT('%', #{searchWord}, '%') </if>
+		</if>
+		<if test="orderBy != null">
+			<if test="orderBy == 1 "> ORDER BY U_STATE DESC </if>
+			<if test="orderBy == 0 "> ORDER BY U_STATE ASC </if>
+		</if>
+		<if test="orderBy == null"> ORDER BY U_NO ASC </if>
+	</select>
+	
+	<update id="updateTotal">
+		UPDATE BC_USERS SET U_TOTAL =#{u_total} WHERE U_ID =#{u_id}
+	</update>
+	
+	<update id="updateLev">
+		UPDATE bc_users
+		SET u_lev = 
+		CASE 
+        WHEN u_total >= 2000000 THEN '다이아'
+        WHEN u_total >= 500000 THEN '골드'
+        ELSE '실버'
+		END
+		WHERE U_ID = #{u_id};
+	</update>
+	
+</mapper>

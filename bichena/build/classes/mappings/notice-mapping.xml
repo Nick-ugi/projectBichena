@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="NoticeDAO">
+	<select id="getNotice" resultType="noticedto">
+		SELECT * FROM BC_NOTICE WHERE
+		NOT_NO = #{not_no}
+	</select>
+
+	<insert id="insertNotice">
+		INSERT INTO BC_NOTICE (NOT_NO, NOT_TITLE,
+		NOT_CONTENT)
+		VALUES (#{not_no}, #{not_title},
+		#{not_content});
+	</insert>
+
+	<update id="updateNotice">
+		UPDATE BC_NOTICE SET
+		NOT_TITLE =#{not_title},
+		NOT_CONTENT =#{not_content}
+		WHERE NOT_NO =#{not_no}
+	</update>
+
+	<delete id="deleteNotice">
+		DELETE FROM BC_NOTICE WHERE NOT_NO =#{not_no}
+	</delete>
+
+	<update id="updateNot_no1">
+		SET @row_number := 0;
+	</update>
+	<update id="updateNot_no2">
+		UPDATE BC_NOTICE
+		SET NOT_NO =
+		(@row_number:=@row_number+1)
+		ORDER BY NOT_NO;
+	</update>
+
+	<select id="getNoticeListPaging" resultType="noticedto">
+		SELECT *
+		FROM BC_NOTICE
+		WHERE 1=1
+        <if test="searchCondition == 'CONTENT' ">AND REGEXP_REPLACE(not_content, '&lt;(/)?(img|label|table|thead|tbody|tfoot|tr|td|p|br|div|span|font|strong|b)(.|\s|\t|\n|\r\n)*?&gt;', '') LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+		<if test="searchCondition  == 'TITLE' "> AND NOT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		ORDER BY NOT_NO DESC
+		LIMIT #{sizePerPage} OFFSET #{startList}
+	</select>
+
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) FROM BC_NOTICE
+		WHERE 1=1
+        <if test="searchCondition == 'CONTENT' ">AND REGEXP_REPLACE(not_content, '&lt;(/)?(img|label|table|thead|tbody|tfoot|tr|td|p|br|div|span|font|strong|b)(.|\s|\t|\n|\r\n)*?&gt;', '') LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+		<if test="searchCondition == 'TITLE' "> AND NOT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+		</if>
+		ORDER BY NOT_NO
+	</select>
+	
+	<select id="getMaxNotice" resultType="int">
+		SELECT
+		IFNULL(MAX(NOT_NO),0)+1 AS MAX FROM BC_NOTICE
+	</select>
+
+	<select id="getPrevNext" resultType="noticedto">
+		SELECT
+		curr.NOT_NO AS currNotNo,
+		curr.NOT_TITLE AS currNotTitle,
+		curr.NOT_DATE AS currNotDate,
+		prev.NOT_NO AS prevNum,
+		prev.NOT_TITLE AS prevTitle,
+		prev.NOT_DATE AS prevDate,
+		next.NOT_NO AS nextNum,
+		next.NOT_TITLE AS nextTitle,
+		next.NOT_DATE AS nextDate
+		FROM
+		BC_NOTICE AS curr
+		LEFT JOIN
+		BC_NOTICE AS prev ON curr.NOT_NO = prev.NOT_NO + 1
+		LEFT JOIN
+		BC_NOTICE AS next ON curr.NOT_NO = next.NOT_NO - 1
+		WHERE
+		curr.NOT_NO = #{not_no}
+	</select>
+
+</mapper>
