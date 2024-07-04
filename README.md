@@ -16,7 +16,7 @@
 ![사용언어 및 개발환경](https://github.com/Nick-ugi/projectBichena/assets/168390629/1e32eb42-fb04-4314-879b-a719e4aab55a)
 
 <br><br><br>
-## :last_quarter_moon_with_face: 주요기능
+## :last_quarter_moon_with_face: 기능구현
 ### “메인페이지”
 <br>
 - 상품카테고리별 슬라이드 구현과, 검색기능을 구현 하였습니다.
