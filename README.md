@@ -65,3 +65,15 @@
 ![아코디언](https://github.com/Nick-ugi/projectBichena/assets/168390629/23a01658-d367-4ac6-a876-26b351350eea)
 <br><br>
 
+<!--
+![검색기능](https://github.com/user-attachments/assets/81422b23-3311-4d48-8732-5dce10103d78)
+![검색컨트롤라](https://github.com/user-attachments/assets/fea7bd25-63c8-428c-aea5-ce8a02630a68)
+![게시판검색](https://github.com/user-attachments/assets/5b6dfcb7-6421-45a8-99a3-15a282e94cb1)
+![메인페이지 슬라이드](https://github.com/user-attachments/assets/f3af34c6-01d4-4ddb-b4ee-eeb7505b22ab)
+![스마트에디터1](https://github.com/user-attachments/assets/be8234ec-f510-4f01-825f-e2d6c5b892aa)
+![스마트에디터2](https://github.com/user-attachments/assets/9b372928-3a62-4f98-87b3-624d2add7d53)
+![스마트에디터JSP](https://github.com/user-attachments/assets/dd3bc52b-72a6-4be4-b91b-cfcdb94b2278)
+![아코디언](https://github.com/user-attachments/assets/4c348735-30ea-4c4b-bfe6-9fb061d745e6)
+![이전,다음글](https://github.com/user-attachments/assets/0332988d-362b-472f-b6d8-2141687c2546)
+![페이징처리](https://github.com/user-attachments/assets/1bdfc035-655d-4067-9cb0-54024674ea16)
+-->
